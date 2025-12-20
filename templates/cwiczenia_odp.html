@@ -5,6 +5,25 @@
     <title>Title</title>
 </head>
 <body>
+    <a href='{{ url_for("index") }}'>&lAarr; Powrót do menu</a>
+    <h2>Ćwiczenia z szyfrem</h2>
+    <h4>Wpisz w poniższą ankietę hasło które chcesz zszyfrować,<br>
+    dla ułatwienia wykorzystywane są tylko młe litery, licbzy i symbole nad liczbami oraz spacja jest oznaczona jako S.</h4>
+    <form method="post" action="/cwiczenia_odp">
+        <p>wiadomość: <input type="text" name="wiadomosc" size="100" required></p>
+        <p>Wybierz poziom zbezpieczeń:</p>
+        <input type="radio" name="poziom" value="0" required>0
+        <br>
+        <input type="radio" name="poziom" value="1">1
+        <br>
+        <input type="radio" name="poziom" value="2">2
+        <br>
+        <!--<input type="radio" name="poziom" value="3">3
+        <br>-->
+        <button type="submit">
+            Wyślij
+        </button>
+    </form>
     <h2>Twoja wiadomość po zaszyfrowaniu to:</h2>
     <h4>{{ wynik }}</h4>
 </body>
