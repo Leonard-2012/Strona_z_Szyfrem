@@ -46,6 +46,38 @@ def dobry_szyfr(haslo, ekonomicznosc_0do2):
     return wiadomosc
 
 
+def deszyfr_dobry(zaszyfrowane):
+    wyjscie = {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f', 6: 'g', 7: 'h', 8: 'i', 9: 'j', 10: 'k', 11: 'l',
+               12: 'm', 13: 'n', 14: 'o', 15: 'p', 16: 'r', 17: 's', 18: 't', 19: 'u', 20: 'w', 21: 'x', 22: 'y',
+               23: 'z', 24: "1", 25: "2", 26: "3", 27: "4", 28: "5", 29: "6", 30: "7", 31: "8", 32: "9", 33: "0",
+               34: "!", 35: "#", 36: "$", 37: "%", 38: "^", 39: "&", 40: "*", 41: "(", 42: ")", 43: "_", 44: " "}
+    wejscie = {v: k for k, v in wyjscie.items()}
+    if not zaszyfrowane:
+        return ""
+    klucz = zaszyfrowane[-1]
+    if not klucz == "§":
+        klucz = wejscie[klucz] + 1
+        wskazowki = zaszyfrowane[:klucz][::-1] # slicing czy jakoś tak
+        wiadomosc = zaszyfrowane[klucz:][:-1]
+        #print(klucz, wskazowki, wiadomosc)
+        for i in wskazowki:
+            x = wejscie[i] % len(wiadomosc)
+            wiadomosc = wiadomosc[:x] + wiadomosc[(x + 1):]
+            #print(x, wiadomosc)
+        zaszyfrowane = wiadomosc
+    else:
+        zaszyfrowane = zaszyfrowane[:-1]
+    x = (len(zaszyfrowane) - 1) // 2
+    #print(x)
+    cezar = wejscie[zaszyfrowane[x]]
+    zaszyfrowane = zaszyfrowane[:x][::-1] + zaszyfrowane[x + 1:][::-1]
+    wynik = ""
+    for j in zaszyfrowane:
+        litera = wyjscie[(wejscie[j] - cezar) % len(wyjscie)]
+        wynik += litera
+    return wynik
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -68,6 +100,19 @@ def cwiczenia_odp():
         poziom = int(request.form['poziom'])
         wynik = dobry_szyfr(szyfr, poziom)
         return render_template('cwiczenia_odp.html', wynik=wynik)
+
+
+@app.route('/deszyfracja_pyt')
+def deszyfracja_pyt():
+    return render_template('deszyfracja_pyt.html')
+
+
+@app.route('/deszyfracja_odp', methods=['POST'])
+def deszyfracja_odp():
+    if request.method == 'POST':
+        szyfr = request.form['wiadomosc']
+        odszyfrowane = deszyfr_dobry(szyfr)
+        return render_template('deszyfracja_odp.html', odszyfrowane=odszyfrowane)
 
 
 if __name__ == "__main__":

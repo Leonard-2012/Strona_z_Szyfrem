@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <a href='{{ url_for("index") }}'>&lAarr; Powrót do menu</a>
+    <h2>Deszyfracja wiadomości</h2>
+    <h4>Wpisz w poniższą ankietę hasło które chcesz zdeszyfrować,<br>
+    Przypominam, że wykorzystywane są tylko małe litery, liczby i symbole nad liczbami.</h4>
+    <form method="post" action="/deszyfracja_odp">
+        <p>Wpisz wiadomość: <input type="text" name="wiadomosc" size="100" required></p>
+        <button type="submit">
+            Wyślij
+        </button>
+    </form>
+</body>
+</html>
