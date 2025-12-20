@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Szyfr Leonarda Królczyka</title>
+    <meta name=”author” content=”Królczyk”/>
+    <meta name=”keywords” content= "szyfr, leonard, królczyk"/>
+    <meta name=”Generator” content="PyCharm CE"/>
+    <meta name=”description” content="Spróbuj swoich sił w łamaniu mojego szyfru!" />
+</head>
+<body>
+    <h1>Wyzwanie z Szyfrem</h1>
+    <h4>Na tej stronie możesz spróbować złamać mój szyfr,<br>Pierwsza osoba która to zrobi otrzyma kwote <b><mark>30 złotych polskich.</mark></b></h4>
+    <hr>
+    <h3>Dostępne są 2 tryby - ćwiczeniowy oraz testowy (przejscie do nich znajduje się na dole strony)</h3>
+    <h5>W pierwszym z nich możliwe jest sprawdzenie odpowiedzi, za to tylko w podejściach testowych możliwe jest wygranie nagrody</h5>
+    <hr>
+    <h2>Pare słów o szyfrze:</h2>
+    <p>Jest to szyfr zrobiony przeze mnie - domowej roboty.<br>
+    Dla uławienia mogę dodać że szyfr jest podstawieniowy oraz propabilistyczny, czyli łopatologicznie rzecz ujmójąc
+    zamienia litery na liczby oraz jest w nim element losowy.</p>
+    <p>Poza tym mogę powiedzieć że całe przedsięwzięcie wynikało z czystej ciekawości jak
+    szybko taki "domowy" szyfr zostanie złamany z współczesną technologią.</p>
+    <hr>
+    <h2>Przejście do ćwiczeń/testu:</h2>
+    <ul>
+        <li><h4>Jeżeli chcesz wejść do ćwiczeń kliknij <a href='{{ url_for("cwiczenia_pyt") }}'>tutaj</a></h4></li>
+        <li><h4>Jeżeli chcesz wejść do testu kliknij <a href='{{ url_for("test") }}'>tutaj</a></h4></li>
+    </ul>
+    <hr>
+    <img src="{{ url_for('static', filename='zdjecie_menu.png') }}">
+</body>
+</html>
