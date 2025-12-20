@@ -3,79 +3,91 @@ import random
 app = Flask(__name__)
 
 
-def dobry_szyfr(haslo, ekonomicznosc_0do2):
-    wyjscie = {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f', 6: 'g', 7: 'h', 8: 'i', 9: 'j', 10: 'k', 11: 'l',
-               12: 'm', 13: 'n', 14: 'o', 15: 'p', 16: 'r', 17: 's', 18: 't', 19: 'u', 20: 'w', 21: 'x', 22: 'y',
-               23: 'z', 24: "1", 25: "2", 26: "3", 27: "4", 28: "5", 29: "6", 30: "7", 31: "8", 32: "9", 33: "0",
-               34: "!", 35: "#", 36: "$", 37: "%", 38: "^", 39: "&", 40: "*", 41: "(", 42: ")", 43: "_", 44: " "}
-    wejscie = {v: k for k, v in wyjscie.items()}
-    k = len(haslo) // 2 - 1  # środek
-    p_1 = ''  # pierwsza część zamaiany
-    p_2 = ''  # druga część zamaiany
-    przes = random.randint(0, len(wyjscie) - 1)
-    for i in range(k, -1, -1):
-        w = (wejscie[haslo[i]] + przes) % (len(wyjscie))
-        l = wyjscie[w]
-        p_1 += l
-    for i in range(len(haslo) - 1, k, -1):
-        w = (wejscie[haslo[i]] + przes) % (len(wyjscie))
-        l = wyjscie[w]
-        p_2 += l
+def dobry_szyfr(haslo, ekonomicznosc_0do3):
+    wejscie = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7, 'i': 8, 'j': 9, 'k': 10, 'l': 11,
+               'm': 12,
+               'n': 13, 'o': 14, 'p': 15, 'q': 16, 'r': 17, 's': 18, 't': 19, 'u': 20, 'v': 21, 'w': 22, 'x': 23,
+               'y': 24,
+               'z': 25, 'A': 26, 'B': 27, 'C': 28, 'D': 29, 'E': 30, 'F': 31, 'G': 32, 'H': 33, 'I': 34, 'J': 35,
+               'K': 36,
+               'L': 37, 'M': 38, 'N': 39, 'O': 40, 'P': 41, 'Q': 42, 'R': 43, 'S': 44, 'T': 45, 'U': 46, 'V': 47,
+               'W': 48,
+               'X': 49, 'Y': 50, 'Z': 51, 'ą': 52, 'ć': 53, 'ę': 54, 'ł': 55, 'ń': 56, 'ó': 57, 'ś': 58, 'ż': 59,
+               'ź': 60,
+               'Ą': 61, 'Ć': 62, 'Ę': 63, 'Ł': 64, 'Ń': 65, 'Ó': 66, 'Ś': 67, 'Ż': 68, 'Ź': 69, '0': 70, '1': 71,
+               '2': 72,
+               '3': 73, '4': 74, '5': 75, '6': 76, '7': 77, '8': 78, '9': 79, ' ': 80, '!': 81, '"': 82, '#': 83,
+               '$': 84,
+               '%': 85, '&': 86, "'": 87, '(': 88, ')': 89, '*': 90, '+': 91, ',': 92, '-': 93, '.': 94, '/': 95,
+               ':': 96,
+               ';': 97, '<': 98, '=': 99, '>': 100, '?': 101, '@': 102, '[': 103, "\\": 104, ']': 105, '^': 106,
+               '_': 107,
+               '`': 108, '{': 109, '|': 110, '}': 111, '~': 112}
+    wyjscie = {v: k for k, v in wejscie.items()}
+    k = len(haslo) // 2   # środek
+    przes = random.randint(0, len(wejscie) - 1)
+    p_1 = "".join(list(map(lambda i: wyjscie[(wejscie[i] + przes) % len(wejscie)], haslo)))[:k][::-1]
+    p_2 = "".join(list(map(lambda i: wyjscie[(wejscie[i] + przes) % len(wejscie)], haslo)))[k:][::-1]
     klucz = wyjscie[przes]
     wiadomosc = p_1 + klucz + p_2  # dodajemy części z kluczem
     """Mod cezar skończony, czas pododawać trochę znaków"""
-    sabot = ''    # klucze do usuwania
-    if ekonomicznosc_0do2 == 0:  # liczba utrudniaczy
-        return wiadomosc + "§"
-    elif ekonomicznosc_0do2 == 1:
-        liczba_fakeow = random.randint(0, 10)
+    sabot = ''  # klucze do usuwania
+    if ekonomicznosc_0do3 == 0:
+        liczba_fakeow = 0
+    elif ekonomicznosc_0do3 == 1:
+        liczba_fakeow = random.randint(1, 10)
+    elif ekonomicznosc_0do3 == 2:
+        liczba_fakeow = random.randint(10, len(wejscie) - 1 // 2)
     else:
-        liczba_fakeow = random.randint(10, len(wyjscie) - 1)
-    for i in range(liczba_fakeow + 1):
-        znak = wyjscie[random.randint(0, len(wyjscie) - 1)]
-        klucz = random.randint(0, len(wyjscie) - 1)
+        liczba_fakeow = random.randint(len(wejscie) - 1 // 2, len(wejscie) // 1)
+    for i in range(liczba_fakeow):
+        znak = wyjscie[random.randint(0, len(wejscie) - 1)]
+        klucz = random.randint(0, len(wejscie) - 1)
         sabot += wyjscie[klucz]
         x = klucz % (len(wiadomosc) + 1)
         wiadomosc = wiadomosc[:x] + znak + wiadomosc[x:]
     wiadomosc = sabot + wiadomosc + wyjscie[liczba_fakeow]
-    i = 0
-    for j in wiadomosc:
-        if j == " ":
-            wiadomosc = wiadomosc[:i] + wiadomosc[(i + 1):]
-        i += 1
     return wiadomosc
 
 
 def deszyfr_dobry(zaszyfrowane):
-    wyjscie = {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f', 6: 'g', 7: 'h', 8: 'i', 9: 'j', 10: 'k', 11: 'l',
-               12: 'm', 13: 'n', 14: 'o', 15: 'p', 16: 'r', 17: 's', 18: 't', 19: 'u', 20: 'w', 21: 'x', 22: 'y',
-               23: 'z', 24: "1", 25: "2", 26: "3", 27: "4", 28: "5", 29: "6", 30: "7", 31: "8", 32: "9", 33: "0",
-               34: "!", 35: "#", 36: "$", 37: "%", 38: "^", 39: "&", 40: "*", 41: "(", 42: ")", 43: "_", 44: " "}
-    wejscie = {v: k for k, v in wyjscie.items()}
-    if not zaszyfrowane:
-        return ""
+    wejscie = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7, 'i': 8, 'j': 9, 'k': 10, 'l': 11,
+               'm': 12,
+               'n': 13, 'o': 14, 'p': 15, 'q': 16, 'r': 17, 's': 18, 't': 19, 'u': 20, 'v': 21, 'w': 22, 'x': 23,
+               'y': 24,
+               'z': 25, 'A': 26, 'B': 27, 'C': 28, 'D': 29, 'E': 30, 'F': 31, 'G': 32, 'H': 33, 'I': 34, 'J': 35,
+               'K': 36,
+               'L': 37, 'M': 38, 'N': 39, 'O': 40, 'P': 41, 'Q': 42, 'R': 43, 'S': 44, 'T': 45, 'U': 46, 'V': 47,
+               'W': 48,
+               'X': 49, 'Y': 50, 'Z': 51, 'ą': 52, 'ć': 53, 'ę': 54, 'ł': 55, 'ń': 56, 'ó': 57, 'ś': 58, 'ż': 59,
+               'ź': 60,
+               'Ą': 61, 'Ć': 62, 'Ę': 63, 'Ł': 64, 'Ń': 65, 'Ó': 66, 'Ś': 67, 'Ż': 68, 'Ź': 69, '0': 70, '1': 71,
+               '2': 72,
+               '3': 73, '4': 74, '5': 75, '6': 76, '7': 77, '8': 78, '9': 79, ' ': 80, '!': 81, '"': 82, '#': 83,
+               '$': 84,
+               '%': 85, '&': 86, "'": 87, '(': 88, ')': 89, '*': 90, '+': 91, ',': 92, '-': 93, '.': 94, '/': 95,
+               ':': 96,
+               ';': 97, '<': 98, '=': 99, '>': 100, '?': 101, '@': 102, '[': 103, "\\": 104, ']': 105, '^': 106,
+               '_': 107,
+               '`': 108, '{': 109, '|': 110, '}': 111, '~': 112}
+    wyjscie = {v: k for k, v in wejscie.items()}
     klucz = zaszyfrowane[-1]
-    if not klucz == "§":
-        klucz = wejscie[klucz] + 1
-        wskazowki = zaszyfrowane[:klucz][::-1] # slicing czy jakoś tak
-        wiadomosc = zaszyfrowane[klucz:][:-1]
-        #print(klucz, wskazowki, wiadomosc)
-        for i in wskazowki:
-            x = wejscie[i] % len(wiadomosc)
-            wiadomosc = wiadomosc[:x] + wiadomosc[(x + 1):]
-            #print(x, wiadomosc)
-        zaszyfrowane = wiadomosc
-    else:
-        zaszyfrowane = zaszyfrowane[:-1]
-    x = (len(zaszyfrowane) - 1) // 2
-    #print(x)
-    cezar = wejscie[zaszyfrowane[x]]
-    zaszyfrowane = zaszyfrowane[:x][::-1] + zaszyfrowane[x + 1:][::-1]
+    klucz = wejscie[klucz]
+    wskazowki = zaszyfrowane[:klucz][::-1]  # slicing czy jakoś tak
+    wiadomosc = zaszyfrowane[klucz:][:-1]
+    for i in wskazowki:
+        x = wejscie[i] % len(wiadomosc)
+        wiadomosc = wiadomosc[:x] + wiadomosc[(x + 1):]
+    x = (len(wiadomosc) - 1) // 2
+    print(wiadomosc, x)
+    cezar = wejscie[wiadomosc[x]]
+    wiadomosc = wiadomosc[:x][::-1] + wiadomosc[x + 1:][::-1]
     wynik = ""
-    for j in zaszyfrowane:
-        litera = wyjscie[(wejscie[j] - cezar) % len(wyjscie)]
+    for j in wiadomosc:
+        litera = wyjscie[(wejscie[j] - cezar) % len(wejscie)]
         wynik += litera
     return wynik
+
 
 
 @app.route('/')
