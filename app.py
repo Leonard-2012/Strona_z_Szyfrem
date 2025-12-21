@@ -26,8 +26,8 @@ def dobry_szyfr(haslo, ekonomicznosc_0do3):
     wyjscie = {v: k for k, v in wejscie.items()}
     k = len(haslo) // 2   # środek
     przes = random.randint(0, len(wejscie) - 1)
-    p_1 = "".join(list(map(lambda i: wyjscie[(wejscie[i] + przes) % len(wejscie)], haslo)))[:k][::-1]
-    p_2 = "".join(list(map(lambda i: wyjscie[(wejscie[i] + przes) % len(wejscie)], haslo)))[k:][::-1]
+    p_1 = "".join(list(map(lambda element: wyjscie[(wejscie[element] + przes) % len(wejscie)], haslo)))[:k][::-1]
+    p_2 = "".join(list(map(lambda element: wyjscie[(wejscie[element] + przes) % len(wejscie)], haslo)))[k:][::-1]
     klucz = wyjscie[przes]
     wiadomosc = p_1 + klucz + p_2  # dodajemy części z kluczem
     """Mod cezar skończony, czas pododawać trochę znaków"""
@@ -39,7 +39,7 @@ def dobry_szyfr(haslo, ekonomicznosc_0do3):
     elif ekonomicznosc_0do3 == 2:
         liczba_fakeow = random.randint(10, len(wejscie) - 1 // 2)
     else:
-        liczba_fakeow = random.randint(len(wejscie) - 1 // 2, len(wejscie) // 1)
+        liczba_fakeow = random.randint((len(wejscie) - 1) // 2, len(wejscie) - 1)
     for i in range(liczba_fakeow):
         znak = wyjscie[random.randint(0, len(wejscie) - 1)]
         klucz = random.randint(0, len(wejscie) - 1)
@@ -89,7 +89,6 @@ def deszyfr_dobry(zaszyfrowane):
     return wynik
 
 
-
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -129,5 +128,3 @@ def deszyfracja_odp():
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-

@@ -8,6 +8,7 @@
     <a href='{{ url_for("index") }}'>&lAarr; Powrót do menu</a>
     <h2>Ćwiczenia z szyfrem</h2>
     <h4>Wpisz w poniższą ankietę hasło które chcesz zszyfrować.</h4>
+    <h3>Szyfr zadziała dla wszystkich symboli na klawiaturze polskiej poza znakami uzyskiwanymi z ctrl/option za wyjątkiem ą,ć,ę,ń,ł,ó,ś,ż,ź.</h3>
     <form method="post" action="/cwiczenia_odp">
         <p>wiadomość: <input type="text" name="wiadomosc" size="100" required></p>
         <p>Wybierz poziom zbezpieczeń:</p>
@@ -17,8 +18,8 @@
         <br>
         <input type="radio" name="poziom" value="2">2
         <br>
-        <!--<input type="radio" name="poziom" value="3">3
-        <br>-->
+        <input type="radio" name="poziom" value="3">3
+        <br>
         <button type="submit">
             Wyślij
         </button>

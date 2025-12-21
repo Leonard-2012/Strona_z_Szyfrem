@@ -8,6 +8,7 @@
     <a href='{{ url_for("index") }}'>&lAarr; Powrót do menu</a>
     <h2>Deszyfracja wiadomości</h2>
     <h4>Wpisz w poniższą ankietę hasło które chcesz zdeszyfrować.</h4>
+    <h3>Szyfr zadziała dla wszystkich symboli na klawiaturze polskiej poza znakami uzyskiwanymi z ctrl/option za wyjątkiem ą,ć,ę,ń,ł,ó,ś,ż,ź.</h3>
     <form method="post" action="/deszyfracja_odp">
         <p>Wpisz wiadomość: <input type="text" name="wiadomosc" size="100" required></p>
         <button type="submit">
