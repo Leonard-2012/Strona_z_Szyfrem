@@ -1,6 +1,18 @@
 from flask import Flask, render_template, request
 import random
+import sqlite3 as sql3
+
 app = Flask(__name__)
+
+
+conn = sql3.connect('baza.db')
+cur = conn.cursor()
+
+cur.execute("""
+CREATE TABLE IF NOT EXISTS aktywne(
+content TEXT NOT NULL)
+""")
+conn.commit()
 
 
 def dobry_szyfr(haslo, ekonomicznosc_0do3):
@@ -101,7 +113,7 @@ def cwiczenia_pyt():
 
 @app.route("/test")
 def test():
-    return render_template("test.html")
+    return render_template("test_niegotowy.html")
 
 
 @app.route('/cwiczenia_odp', methods=['POST'])

@@ -1,11 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Test</title>
 </head>
 <body>
     <a href='{{ url_for("index") }}'>&lAarr; Powrót do menu</a>
-    <h1>Tu powstaje test</h1>
+    <h1>Wyzwanie Poziom {{ poziom }}</h1>
+    <h3>Będziesz musiał stawić czoła 5 testom ,a każdy z nich dotyczy innego poziomu kodowania.</h3>
+    <hr>
+    <p>Jaka wiadomość została zakodowana w poniższym komunikacie?:</p>
+    <h3>{{ wiadomosc }}</h3>
+    <form method="post" action="/deszyfracja_odp">
+        <p>Wpisz wiadomość: <input type="text" name="wiadomosc" size="100" required></p>
+        <button type="submit">
+            Wyślij
+        </button>
+    </form>
 </body>
 </html>
