@@ -3,10 +3,14 @@ import random
 import sqlite3 as sql3
 
 app = Flask(__name__)
-
+slowa = ['melepeta', "Grzegorz Brzęczyszczykiewicz", "Chrząszczyszewoszyce", "Łękołoda"]
 
 conn = sql3.connect('baza.db')
 cur = conn.cursor()
+
+slowo = ''
+poziom = 0
+bledy = 0
 
 cur.execute("""
 CREATE TABLE IF NOT EXISTS aktywne(
@@ -111,9 +115,35 @@ def cwiczenia_pyt():
     return render_template('cwiczenia_pyt.html')
 
 
+@app.route("/test0")
+def test0():
+    global slowo, bledy, poziom
+    poziom = 1
+    slowo = slowa[random.randint(0, len(slowa) - 1)]
+    bledy = 0
+    return render_template("test0.html")
+
+
+@app.route("/test1")
+def test1():
+    global slowo, poziom, bledy
+    return render_template("test1.html")
+
+
 @app.route("/test")
 def test():
-    return render_template("test_niegotowy.html")
+    global slowo, poziom, bledy
+    if request.method == 'POST':
+        odpowiedz = request.form['wiadomosc']
+        if odpowiedz == 'slowo':
+            poziom += 1
+            bledy = 0
+            slowo = slowa[random.randint(0, len(slowa) - 1)]
+        else:
+            bledy += 1
+            if bledy > 2:
+                return render_template('test0.html')
+        return render_template('test', )
 
 
 @app.route('/cwiczenia_odp', methods=['POST'])
