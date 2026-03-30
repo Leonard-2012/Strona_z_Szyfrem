@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 import random
 import sqlite3 as sql3
 
@@ -11,6 +11,7 @@ cur = conn.cursor()
 slowo = ''
 poziom = 0
 bledy = 0
+zaszyfrowane = ''
 
 cur.execute("""
 CREATE TABLE IF NOT EXISTS aktywne(
@@ -95,7 +96,7 @@ def deszyfr_dobry(zaszyfrowane):
         x = wejscie[i] % len(wiadomosc)
         wiadomosc = wiadomosc[:x] + wiadomosc[(x + 1):]
     x = (len(wiadomosc) - 1) // 2
-    print(wiadomosc, x)
+    # faki usunięte
     cezar = wejscie[wiadomosc[x]]
     wiadomosc = wiadomosc[:x][::-1] + wiadomosc[x + 1:][::-1]
     wynik = ""
@@ -117,33 +118,32 @@ def cwiczenia_pyt():
 
 @app.route("/test0")
 def test0():
-    global slowo, bledy, poziom
+    global slowo, bledy, poziom, zaszyfrowane
     poziom = 1
     slowo = slowa[random.randint(0, len(slowa) - 1)]
-    bledy = 0
+    bledy = -1
+    zaszyfrowane = dobry_szyfr(slowo, 0)
     return render_template("test0.html")
 
 
-@app.route("/test1")
-def test1():
-    global slowo, poziom, bledy
-    return render_template("test1.html")
-
-
-@app.route("/test")
+@app.route("/test", methods=['GET', 'POST'])
 def test():
-    global slowo, poziom, bledy
+    global slowo, poziom, bledy, zaszyfrowane
     if request.method == 'POST':
         odpowiedz = request.form['wiadomosc']
-        if odpowiedz == 'slowo':
+        if odpowiedz == slowo:
             poziom += 1
             bledy = 0
-            slowo = slowa[random.randint(0, len(slowa) - 1)]
+            if poziom > 4:
+                return render_template('wygrana.html')
+            slowo = random.choice(slowa)
+            zaszyfrowane = dobry_szyfr(slowo, poziom - 1)
         else:
             bledy += 1
             if bledy > 2:
                 return render_template('test0.html')
-        return render_template('test', )
+        return redirect(url_for('test'))
+    return render_template('test.html', poziom=poziom, wiadomosc=zaszyfrowane, bledy=bledy)
 
 
 @app.route('/cwiczenia_odp', methods=['POST'])
