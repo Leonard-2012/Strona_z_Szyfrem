@@ -106,7 +106,7 @@ slowa = [
     "gorączka", "ból", "leczenie", "rehabilitacja",
 
     "państwo", "miasto", "obywatel", "prawo", "ustawa", "konstytucja", "sąd", "policja", "wybory",
-    "demokracja", "rząd", "prezydent", "parlament",
+    "demokracja", "rząd", "prezydent", "parlament","totalitaryzm","Komunizm"
 
     "energia", "elektryczność", "bateria", "prąd", "napięcie", "siła", "masa", "ruch", "prędkość",
     "czasoprzestrzeń", "planeta", "gwiazda", "galaktyka", "wszechświat",
