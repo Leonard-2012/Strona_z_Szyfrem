@@ -159,6 +159,12 @@ def test():
         else:
             bledy += 1
             if bledy > 2:
+                conn = sql3.connect('datas/aktywne.db')
+                cur = conn.cursor()
+                poziom += 1
+                bledy = 0
+                cur.execute("DELETE FROM aktywne_slowa WHERE id = ?", (id,))
+                conn.close()
                 return render_template('test0.html')
         return redirect(url_for('test'))
     return render_template('test.html', poziom=poziom, wiadomosc=zaszyfrowane, bledy=bledy)
