@@ -1,38 +1,44 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 import random
 import sqlite3 as sql3
 
 app = Flask(__name__)
+app.secret_key = '#Super_wazny_klucz'
 
-'''Baza sqla'''
-conn = sql3.connect('datas/baza.db')
-cur = conn.cursor()
-cur.execute("""
-CREATE TABLE IF NOT EXISTS slowa(
-content TEXT NOT NULL)
-""")
-cur.execute("""
-CREATE TABLE IF NOT EXISTS admini(
-login TEXT NOT NULL,
-haslo TEXT NOT NULL)
-""")
-conn.commit()
-conn.close()
 
-conn = sql3.connect('datas/aktywne.db')
-cur = conn.cursor()
-cur.execute("""
-CREATE TABLE IF NOT EXISTS aktywne_slowa(
-id INTEGER PRIMARY KEY AUTOINCREMENT,
-content TEXT NOT NULL)
-""")
+def init_db():
+    conn = sql3.connect('datas/baza.db')
+    cur = conn.cursor()
 
-''' ZMIENNE '''
-slowo = ''
-poziom = 0
-bledy = 0
-zaszyfrowane = ''
-id = 0
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS slowa(
+        content TEXT NOT NULL
+    )
+    """)
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS admini(
+        login TEXT NOT NULL,
+        haslo TEXT NOT NULL
+    )
+    """)
+    conn.commit()
+    conn.close()
+
+    conn = sql3.connect('datas/aktywne.db')
+    cur = conn.cursor()
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS aktywne_slowa(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        content TEXT NOT NULL
+    )
+    """)
+    conn.commit()
+    conn.close()
+
+
+init_db()
+
 
 wejscie = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7, 'i': 8, 'j': 9, 'k': 10, 'l': 11, 'm': 12,
            'n': 13, 'o': 14, 'p': 15, 'q': 16, 'r': 17, 's': 18, 't': 19, 'u': 20, 'v': 21, 'w': 22, 'x': 23,
@@ -70,7 +76,7 @@ def dobry_szyfr(haslo, ekonomicznosc_0do4):
     elif ekonomicznosc_0do4 == 1:
         liczba_fakeow = random.randint(1, 10)
     elif ekonomicznosc_0do4 == 2:
-        liczba_fakeow = random.randint(10, len(wejscie) - 1 // 2)
+        liczba_fakeow = random.randint(10, (len(wejscie) - 1) // 2)
     elif ekonomicznosc_0do4 == 3:
         liczba_fakeow = random.randint((len(wejscie) - 1) // 2, (len(wejscie) + 20) // 2)
     else:
@@ -117,65 +123,65 @@ def cwiczenia_pyt():
 
 @app.route("/test0")
 def test0():
-    global slowo, bledy, poziom, zaszyfrowane, slowa, id
+    global slowa
     conn = sql3.connect('datas/baza.db')
     cur = conn.cursor()
     cur.execute("""SELECT * FROM slowa""")
     slowa = cur.fetchall()
     conn.close()
-    poziom = 1
-    slowo = random.choice(slowa)[0]
-    bledy = -1
+    session['poziom'] = 1
+    session['slowo'] = random.choice(slowa)[0]
+    session['bledy'] = -1
     conn = sql3.connect('datas/aktywne.db')
     cur = conn.cursor()
-    zaszyfrowane = dobry_szyfr(slowo, 0)
-    cur.execute('INSERT INTO aktywne_slowa(content) VALUES(?)', (zaszyfrowane,))
+    session['zaszyfrowane'] = dobry_szyfr(session['slowo'], 0)
+    cur.execute('INSERT INTO aktywne_slowa(content) VALUES(?)', (session['zaszyfrowane'],))
     conn.commit()
-    id = cur.lastrowid
+    session['id'] = cur.lastrowid
     conn.close()
     return render_template("test0.html")
 
 
 @app.route("/test", methods=['GET', 'POST'])
 def test():
-    global slowo, poziom, bledy, zaszyfrowane, id
+    global slowa
     if request.method == 'POST':
         odpowiedz = request.form['wiadomosc']
-        if odpowiedz == slowo:
+        if odpowiedz == session['slowo']:
             conn = sql3.connect('datas/aktywne.db')
             cur = conn.cursor()
-            poziom += 1
-            bledy = 0
-            cur.execute("DELETE FROM aktywne_slowa WHERE id = ?", (id,))
-            if poziom > 5:
+            session['poziom'] += 1
+            session['bledy'] = 0
+            cur.execute("DELETE FROM aktywne_slowa WHERE id = ?", (session['id'], ))
+            if session['poziom'] > 5:
                 conn.close()
                 return render_template('wygrana.html')
-            slowo = random.choice(slowa)[0]
-            zaszyfrowane = dobry_szyfr(slowo, poziom - 1)
-            cur.execute('INSERT INTO aktywne_slowa(content) VALUES(?)', (zaszyfrowane,))
+            session['slowo'] = random.choice(slowa)[0]
+            session['zaszyfrowane'] = dobry_szyfr(session['slowo'], session['poziom'] - 1)
+            cur.execute('INSERT INTO aktywne_slowa(content) VALUES(?)', (session['zaszyfrowane'],))
             conn.commit()
-            id = cur.lastrowid
+            session['id']= cur.lastrowid
             conn.close()
         else:
-            bledy += 1
-            if bledy > 2:
+            session['bledy'] += 1
+            if session['bledy'] > 2:
                 conn = sql3.connect('datas/aktywne.db')
                 cur = conn.cursor()
-                poziom += 1
-                bledy = 0
-                cur.execute("DELETE FROM aktywne_slowa WHERE id = ?", (id,))
+                session['poziom'] += 1
+                session['bledy'] = 0
+                cur.execute("DELETE FROM aktywne_slowa WHERE id = ?", (session['id'],))
                 conn.close()
                 return render_template('test0.html')
         return redirect(url_for('test'))
-    return render_template('test.html', poziom=poziom, wiadomosc=zaszyfrowane, bledy=bledy)
+    return render_template('test.html', poziom=session['poziom'], wiadomosc=session['zaszyfrowane'], bledy=session['bledy'])
 
 
 @app.route('/cwiczenia_odp', methods=['POST'])
 def cwiczenia_odp():
     if request.method == 'POST':
-        poziom = int(request.form['poziom'])
+        session['poziom'] = int(request.form['session["poziom"]'])
         szyfr = request.form['wiadomosc']
-        wynik = dobry_szyfr(szyfr, poziom)
+        wynik = dobry_szyfr(szyfr, session['poziom'])
         return render_template('cwiczenia_odp.html', wynik=wynik)
 
 
