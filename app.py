@@ -70,38 +70,35 @@ def dobry_szyfr(haslo, ekonomicznosc_0do4):
     klucz = wyjscie[przes]
     wiadomosc = p_1 + klucz + p_2  # dodajemy części z kluczem
     """Mod cezar skończony, czas pododawać trochę znaków"""
-    sabot = ''  # klucze do usuwania
+    klucze = ''  # klucze do usuwania
     if not ekonomicznosc_0do4:
-        liczba_fakeow = 0
+        liczba_zmylek = 0
     elif ekonomicznosc_0do4 == 1:
-        liczba_fakeow = random.randint(1, 10)
+        liczba_zmylek = random.randint(1, 10)
     elif ekonomicznosc_0do4 == 2:
-        liczba_fakeow = random.randint(10, (len(wejscie) - 1) // 2)
+        liczba_zmylek = random.randint(10, (len(wejscie) - 1) // 2)
     elif ekonomicznosc_0do4 == 3:
-        liczba_fakeow = random.randint((len(wejscie) - 1) // 2, (len(wejscie) + 20) // 2)
+        liczba_zmylek = random.randint((len(wejscie) - 1) // 2, (len(wejscie) + 20) // 2)
     else:
-        liczba_fakeow = random.randint((len(wejscie) + 20) // 2, len(wejscie) - 1)
-    for i in range(liczba_fakeow):
-        znak = wyjscie[random.randint(0, len(wejscie) - 1)]
-        klucz = random.randint(0, len(wejscie) - 1)
-        sabot += wyjscie[klucz]
-        x = klucz % len(wiadomosc)
-        wiadomosc = wiadomosc[:x] + znak + wiadomosc[x:]
-    wiadomosc = sabot + wiadomosc + wyjscie[liczba_fakeow]
-    return wiadomosc
+        liczba_zmylek = random.randint((len(wejscie) + 20) // 2, len(wejscie) - 1)
+    for i in range(liczba_zmylek):
+        klucz = random.randint(0, len(wejscie))
+        losowy = wyjscie[random.randint(0, len(wejscie))]
+        id = klucz % len(wiadomosc)
+        wiadomosc = wiadomosc[:id] + losowy + wiadomosc[id:]
+        klucze = wyjscie[klucz] + klucze
+    return klucze + wiadomosc + wyjscie[liczba_zmylek]
 
 
 def deszyfr_dobry(zaszyfrowane):
     global wejscie, wyjscie
-    klucz = zaszyfrowane[-1]
-    klucz = wejscie[klucz]
-    wskazowki = zaszyfrowane[:klucz][::-1]  # slicing czy jakoś tak
-    wiadomosc = zaszyfrowane[klucz:][:-1]
-    for i in wskazowki:
-        x = wejscie[i] % len(wiadomosc)
-        wiadomosc = wiadomosc[:x] + wiadomosc[(x + 1):]
+    liczba = wejscie[zaszyfrowane[-1]]
+    klucze = zaszyfrowane[:liczba]
+    wiadomosc = zaszyfrowane[liczba:][:-1]
+    for i in klucze:
+        id = wejscie[i] % (len(wiadomosc) - 1)
+        wiadomosc = wiadomosc[:id] + wiadomosc[(id+1):]
     x = (len(wiadomosc) - 1) // 2
-    # faki usunięte
     cezar = wejscie[wiadomosc[x]]
     wiadomosc = wiadomosc[:x][::-1] + wiadomosc[x + 1:][::-1]
     wynik = ""
@@ -160,18 +157,16 @@ def test():
             session['zaszyfrowane'] = dobry_szyfr(session['slowo'], session['poziom'] - 1)
             cur.execute('INSERT INTO aktywne_slowa(content) VALUES(?)', (session['zaszyfrowane'],))
             conn.commit()
-            session['id']= cur.lastrowid
+            session['id'] = cur.lastrowid
             conn.close()
         else:
             session['bledy'] += 1
             if session['bledy'] > 2:
                 conn = sql3.connect('datas/aktywne.db')
                 cur = conn.cursor()
-                session['poziom'] += 1
-                session['bledy'] = 0
                 cur.execute("DELETE FROM aktywne_slowa WHERE id = ?", (session['id'],))
                 conn.close()
-                return render_template('test0.html')
+                return redirect(url_for('test0'))
         return redirect(url_for('test'))
     return render_template('test.html', poziom=session['poziom'], wiadomosc=session['zaszyfrowane'], bledy=session['bledy'])
 
@@ -179,7 +174,7 @@ def test():
 @app.route('/cwiczenia_odp', methods=['POST'])
 def cwiczenia_odp():
     if request.method == 'POST':
-        session['poziom'] = int(request.form['session["poziom"]'])
+        session['poziom'] = int(request.form['poziom'])
         szyfr = request.form['wiadomosc']
         wynik = dobry_szyfr(szyfr, session['poziom'])
         return render_template('cwiczenia_odp.html', wynik=wynik)
@@ -198,7 +193,6 @@ def deszyfracja_odp():
             cur = conn.cursor()
             cur.execute("""SELECT * FROM aktywne_slowa""")
             aktualne = cur.fetchall()
-            print(aktualne)
             aktualne_2 = []
             for i in aktualne:
                 aktualne_2.append(i[1])
