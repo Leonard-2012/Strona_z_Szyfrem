@@ -82,8 +82,8 @@ def dobry_szyfr(haslo, ekonomicznosc_0do4):
     else:
         liczba_zmylek = random.randint((len(wejscie) + 20) // 2, len(wejscie) - 1)
     for i in range(liczba_zmylek):
-        klucz = random.randint(0, len(wejscie))
-        losowy = wyjscie[random.randint(0, len(wejscie))]
+        klucz = random.randint(0, len(wejscie) - 1)
+        losowy = wyjscie[random.randint(0, len(wejscie) - 1)]
         id = klucz % len(wiadomosc)
         wiadomosc = wiadomosc[:id] + losowy + wiadomosc[id:]
         klucze = wyjscie[klucz] + klucze
