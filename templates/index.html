@@ -9,7 +9,7 @@
     <meta name=”description” content="Spróbuj swoich sił w łamaniu mojego szyfru!" />
 </head>
 <body>
-    <h1>Wyzwanie z Szyfrem (v 3.1.9)</h1>
+    <h1>Wyzwanie z Szyfrem (v 3.2.1)</h1>
     <h4>Na tej stronie możesz spróbować złamać mój szyfr,<br>Pierwsza osoba która to zrobi otrzyma kwote <b><mark>1000 dongów wietnamskich.</mark></b></h4>
     <hr>
     <h3>Dostępne są 2 tryby - ćwiczeniowy oraz testowy (przejscie do nich znajduje się na dole strony)</h3>
@@ -24,9 +24,9 @@
     <hr>
     <h2>Przejście do ćwiczeń/testu:</h2>
     <ul>
-        <li><h4>Jeżeli chcesz wejść do ćwiczeń kliknij <a href='{{ url_for("cwiczenia_pyt") }}'>tutaj</a></h4></li>
+        <li><h4>Jeżeli chcesz wejść do ćwiczeń kliknij <a href='{{ url_for("cwiczenia_odp") }}'>tutaj</a></h4></li>
         <li><h4>Jeżeli chcesz wejść do testu kliknij <a href='{{ url_for("test0") }}'>tutaj</a></h4></li>
-        <li><h4>Jeżeli chcesz zdeszyfrować wiadomośc kliknij <a href='{{ url_for("deszyfracja_pyt") }}'>tutaj</a></h4></li>
+        <li><h4>Jeżeli chcesz zdeszyfrować wiadomośc kliknij <a href='{{ url_for("deszyfracja_odp") }}'>tutaj</a></h4></li>
     </ul>
     <hr>
     <img src="{{ url_for('static', filename='zdjecie_menu.png') }}">

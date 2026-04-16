@@ -24,7 +24,9 @@
             Wyślij
         </button>
     </form>
-    <h2>Twoja wiadomość po zaszyfrowaniu to:</h2>
-    <h4>{{ wynik }}</h4>
+    {% if wynik %}
+        <h2>Twoja wiadomość po zaszyfrowaniu to:</h2>
+        <h4>{{ wynik }}</h4>
+    {% endif %}
 </body>
 </html>

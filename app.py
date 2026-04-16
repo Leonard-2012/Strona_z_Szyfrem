@@ -21,12 +21,6 @@ def init_db():
         haslo TEXT NOT NULL
     )
     """)
-    conn.commit()
-    conn.close()
-
-    conn = sql3.connect('datas/aktywne.db')
-    cur = conn.cursor()
-
     cur.execute("""
     CREATE TABLE IF NOT EXISTS aktywne_slowa(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -110,6 +104,8 @@ def deszyfr_dobry(zaszyfrowane):
 
 @app.route('/')
 def index():
+    session['wynik'] = False
+    session['odszyfrowane'] = False
     return render_template('index.html')
 
 
@@ -129,7 +125,7 @@ def test0():
     session['poziom'] = 1
     session['slowo'] = random.choice(slowa)[0]
     session['bledy'] = -1
-    conn = sql3.connect('datas/aktywne.db')
+    conn = sql3.connect('datas/baza.db')
     cur = conn.cursor()
     session['zaszyfrowane'] = dobry_szyfr(session['slowo'], 0)
     cur.execute('INSERT INTO aktywne_slowa(content) VALUES(?)', (session['zaszyfrowane'],))
@@ -145,7 +141,7 @@ def test():
     if request.method == 'POST':
         odpowiedz = request.form['wiadomosc']
         if odpowiedz == session['slowo']:
-            conn = sql3.connect('datas/aktywne.db')
+            conn = sql3.connect('datas/baza.db')
             cur = conn.cursor()
             session['poziom'] += 1
             session['bledy'] = 0
@@ -162,7 +158,7 @@ def test():
         else:
             session['bledy'] += 1
             if session['bledy'] > 2:
-                conn = sql3.connect('datas/aktywne.db')
+                conn = sql3.connect('datas/baza.db')
                 cur = conn.cursor()
                 cur.execute("DELETE FROM aktywne_slowa WHERE id = ?", (session['id'],))
                 conn.close()
@@ -171,25 +167,25 @@ def test():
     return render_template('test.html', poziom=session['poziom'], wiadomosc=session['zaszyfrowane'], bledy=session['bledy'])
 
 
-@app.route('/cwiczenia_odp', methods=['POST'])
+@app.route('/cwiczenia_odp', methods=['POST', 'GET'])
 def cwiczenia_odp():
     if request.method == 'POST':
         session['poziom'] = int(request.form['poziom'])
-        szyfr = request.form['wiadomosc']
-        wynik = dobry_szyfr(szyfr, session['poziom'])
-        return render_template('cwiczenia_odp.html', wynik=wynik)
-
+        session['szyfr'] = request.form['wiadomosc']
+        session['wynik'] = dobry_szyfr(session['szyfr'], session['poziom'])
+        return redirect(url_for('cwiczenia_odp'))
+    wynik_koniec = session.get('wynik', False)
+    return render_template('cwiczenia_odp.html', wynik=wynik_koniec)
 
 @app.route('/deszyfracja_pyt')
 def deszyfracja_pyt():
     return render_template('deszyfracja_pyt.html')
 
-
-@app.route('/deszyfracja_odp', methods=['POST'])
+@app.route('/deszyfracja_odp', methods=['POST', 'GET'])
 def deszyfracja_odp():
     if request.method == 'POST':
         try:
-            conn = sql3.connect('datas/aktywne.db')
+            conn = sql3.connect('datas/baza.db')
             cur = conn.cursor()
             cur.execute("""SELECT * FROM aktywne_slowa""")
             aktualne = cur.fetchall()
@@ -197,19 +193,21 @@ def deszyfracja_odp():
             for i in aktualne:
                 aktualne_2.append(i[1])
             conn.close()
-            szyfr = request.form['wiadomosc']
-            if szyfr not in aktualne_2:
-                odszyfrowane = deszyfr_dobry(szyfr)
-                return render_template('deszyfracja_odp.html', odszyfrowane=odszyfrowane)
+            session['szyfr'] = request.form['wiadomosc']
+            if session['szyfr'] not in aktualne_2:
+                session['odszyfrowane'] = deszyfr_dobry(session['szyfr'])
+                return redirect(url_for('deszyfracja_odp'))
             else:
                 return render_template('oszustwo.html')
         except:
             return render_template('error.html')
+    odszyfrowane_koniec = session.get('odszyfrowane', False)
+    return render_template('deszyfracja_odp.html', odszyfrowane=odszyfrowane_koniec)
 
 
 @app.route("/cleanup", methods=["POST"])
 def cleanup():
-    conn = sql3.connect('datas/aktywne.db')
+    conn = sql3.connect('datas/baza.db')
     cur = conn.cursor()
     cur.execute("DELETE FROM aktywne_slowa")
     conn.commit()
