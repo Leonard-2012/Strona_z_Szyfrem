@@ -5,6 +5,20 @@
     <title>Logowanie</title>
 </head>
 <body>
+    <a href='{{ url_for("index") }}'>&lAarr; Powrót do menu</a>
     <h1>Tu powstają logowanie i funkcje administratorów.</h1>
+    <h1>Logowajnie</h1>
+    <form method="post">
+        <p>Login:</p>
+        <input type="text" name="wiadomosc" size="20" required>
+        <p>Hasło:</p>
+        <input type="text" name="wiadomosc" size="20" required>
+        <br>
+        <br>
+        <button type="submit">Zaloguj</button>
+        <hr>
+        <h5>Nie masz konta?</h5>
+        <h5>Zarejestruj się <a href="{{ url_for( 'rejestracja' ) }}">tutaj</a></h5>
+    </form>
 </body>
 </html>

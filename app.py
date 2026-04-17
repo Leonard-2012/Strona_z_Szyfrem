@@ -7,18 +7,18 @@ app.secret_key = '#Super_wazny_klucz'
 
 
 def init_db():
-    conn = sql3.connect('datas/baza.db')
-    cur = conn.cursor()
-
+    conn, cur = polacz()
     cur.execute("""
     CREATE TABLE IF NOT EXISTS slowa(
         content TEXT NOT NULL
     )
     """)
     cur.execute("""
-    CREATE TABLE IF NOT EXISTS admini(
+    CREATE TABLE IF NOT EXISTS users(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
         login TEXT NOT NULL,
-        haslo TEXT NOT NULL
+        haslo TEXT NOT NULL,
+        uprawnienia INTEGER 
     )
     """)
     cur.execute("""
@@ -29,9 +29,6 @@ def init_db():
     """)
     conn.commit()
     conn.close()
-
-
-init_db()
 
 
 wejscie = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7, 'i': 8, 'j': 9, 'k': 10, 'l': 11, 'm': 12,
@@ -102,6 +99,13 @@ def deszyfr_dobry(zaszyfrowane):
     return wynik
 
 
+def polacz():
+    conn = sql3.connect("datas/baza.db")
+    conn.row_factory = sql3.Row
+    cur = conn.cursor()
+    return conn, cur
+
+
 @app.route('/')
 def index():
     session['wynik'] = False
@@ -117,16 +121,12 @@ def cwiczenia_pyt():
 @app.route("/test0")
 def test0():
     global slowa
-    conn = sql3.connect('datas/baza.db')
-    cur = conn.cursor()
+    conn, cur = polacz()
     cur.execute("""SELECT * FROM slowa""")
     slowa = cur.fetchall()
-    conn.close()
     session['poziom'] = 1
     session['slowo'] = random.choice(slowa)[0]
     session['bledy'] = -1
-    conn = sql3.connect('datas/baza.db')
-    cur = conn.cursor()
     session['zaszyfrowane'] = dobry_szyfr(session['slowo'], 0)
     cur.execute('INSERT INTO aktywne_slowa(content) VALUES(?)', (session['zaszyfrowane'],))
     conn.commit()
@@ -141,8 +141,7 @@ def test():
     if request.method == 'POST':
         odpowiedz = request.form['wiadomosc']
         if odpowiedz == session['slowo']:
-            conn = sql3.connect('datas/baza.db')
-            cur = conn.cursor()
+            conn, cur = polacz()
             session['poziom'] += 1
             session['bledy'] = 0
             cur.execute("DELETE FROM aktywne_slowa WHERE id = ?", (session['id'], ))
@@ -158,8 +157,7 @@ def test():
         else:
             session['bledy'] += 1
             if session['bledy'] > 2:
-                conn = sql3.connect('datas/baza.db')
-                cur = conn.cursor()
+                conn, cur = polacz()
                 cur.execute("DELETE FROM aktywne_slowa WHERE id = ?", (session['id'],))
                 conn.close()
                 return redirect(url_for('test0'))
@@ -187,8 +185,7 @@ def deszyfracja_pyt():
 def deszyfracja_odp():
     if request.method == 'POST':
         try:
-            conn = sql3.connect('datas/baza.db')
-            cur = conn.cursor()
+            conn, cur = polacz()
             cur.execute("""SELECT * FROM aktywne_slowa""")
             aktualne = cur.fetchall()
             aktualne_2 = []
@@ -207,15 +204,19 @@ def deszyfracja_odp():
     return render_template('deszyfracja_odp.html', odszyfrowane=odszyfrowane_koniec)
 
 
-@app.route("/logowanie")
+@app.route("/logowanie",  methods=['GET', 'POST'])
 def logowanie():
     return render_template('logowanie.html')
 
 
+@app.route("/rejestracja")
+def rejestracja():
+    return render_template('rejestracja.html')
+
+
 @app.route("/cleanup", methods=["POST"])
 def cleanup():
-    conn = sql3.connect('datas/baza.db')
-    cur = conn.cursor()
+    conn, cur = polacz()
     cur.execute("DELETE FROM aktywne_slowa")
     conn.commit()
     conn.close()
@@ -223,4 +224,5 @@ def cleanup():
 
 
 if __name__ == "__main__":
+    init_db()
     app.run(debug=True)
