@@ -177,9 +177,11 @@ def cwiczenia_odp():
     wynik_koniec = session.get('wynik', False)
     return render_template('cwiczenia_odp.html', wynik=wynik_koniec)
 
+
 @app.route('/deszyfracja_pyt')
 def deszyfracja_pyt():
     return render_template('deszyfracja_pyt.html')
+
 
 @app.route('/deszyfracja_odp', methods=['POST', 'GET'])
 def deszyfracja_odp():
@@ -203,6 +205,11 @@ def deszyfracja_odp():
             return render_template('error.html')
     odszyfrowane_koniec = session.get('odszyfrowane', False)
     return render_template('deszyfracja_odp.html', odszyfrowane=odszyfrowane_koniec)
+
+
+@app.route("/logowanie")
+def logowanie():
+    return render_template('logowanie.html')
 
 
 @app.route("/cleanup", methods=["POST"])
