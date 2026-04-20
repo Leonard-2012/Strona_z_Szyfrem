@@ -15,10 +15,9 @@ def init_db():
     """)
     cur.execute("""
     CREATE TABLE IF NOT EXISTS users(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-        login TEXT NOT NULL,
+        login TEXT NOT NULL PRIMARY KEY,
         haslo TEXT NOT NULL,
-        uprawnienia INTEGER 
+        poziom INTEGER
     )
     """)
     cur.execute("""
@@ -99,23 +98,50 @@ def deszyfr_dobry(zaszyfrowane):
     return wynik
 
 
+def na_binarne(n:int):
+    wynik = ""
+    while n > 0:
+        reszta = n % 2
+        wynik = str(reszta) + wynik
+        n = n // 2
+    if not wynik:
+        wynik = '0'
+    return wynik
+
+
+def sprawdz_logowanie(login, haslo):
+    conn, cur = polacz()
+    cur.execute(
+        "SELECT * FROM users WHERE login = ?",
+        (login, )
+    )
+    wynik = cur.fetchone()
+    conn.close()
+    print(haslo, wynik)
+    if haslo == wynik[1]:
+        wynik = 1
+    else:
+        wynik = 0
+    return wynik
+
+
 def polacz():
     conn = sql3.connect("datas/baza.db")
-    conn.row_factory = sql3.Row
+    # conn.row_factory = sql3.Row
     cur = conn.cursor()
     return conn, cur
 
 
 @app.route('/')
 def index():
+    try:
+        print(session['zalogowany'])
+    except:
+        print("brak")
     session['wynik'] = False
     session['odszyfrowane'] = False
-    return render_template('index.html')
-
-
-@app.route('/cwiczenia_pyt')
-def cwiczenia_pyt():
-    return render_template('cwiczenia_pyt.html')
+    zalogowany = session.get('zalogowany', False)
+    return render_template('index.html', status=zalogowany)
 
 
 @app.route("/test0")
@@ -176,11 +202,6 @@ def cwiczenia_odp():
     return render_template('cwiczenia_odp.html', wynik=wynik_koniec)
 
 
-@app.route('/deszyfracja_pyt')
-def deszyfracja_pyt():
-    return render_template('deszyfracja_pyt.html')
-
-
 @app.route('/deszyfracja_odp', methods=['POST', 'GET'])
 def deszyfracja_odp():
     if request.method == 'POST':
@@ -206,12 +227,27 @@ def deszyfracja_odp():
 
 @app.route("/logowanie",  methods=['GET', 'POST'])
 def logowanie():
-    return render_template('logowanie.html')
+    if request.method == 'POST':
+        try:
+            if sprawdz_logowanie(request.form['login'], request.form['haslo']):
+                session['zalogowany'] = True
+                return render_template('administracja.html')
+            else:
+                return render_template('logowanie.html', zle=1)
+        except:
+            return render_template('logowanie.html', zle=1)
+    else:
+        return render_template('logowanie.html', zle=0)
 
 
 @app.route("/rejestracja")
 def rejestracja():
     return render_template('rejestracja.html')
+
+
+@app.route("/administracja")
+def administracja():
+    return render_template('administracja.html')
 
 
 @app.route("/cleanup", methods=["POST"])

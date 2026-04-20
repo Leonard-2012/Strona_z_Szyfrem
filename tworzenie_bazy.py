@@ -82,7 +82,8 @@ slowa = [
     "dobry", "zły", "ładny", "brzydki", "szybki", "wolny", "wysoki", "niski", "silny", "słaby",
     "łatwy", "trudny", "prosty", "złożony", "nowy", "stary", "młody", "starszy",
 
-    'melepeta', "Grzegorz Brzęczyszczykiewicz", "Chrząszczyszewoszyce", "Łękołoda", "Grzegorz Braun"
+    'melepeta', "Grzegorz Brzęczyszczykiewicz", "Chrząszczyszewoszyce", "Łękołoda", "Grzegorz Braun", "krzesiniak",
+    'Zrób sobie dyszkę', 'Legolas', "Winicjusz", "Ligia"
 ]
 
 if __name__ == '__main__':
