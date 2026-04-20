@@ -134,10 +134,6 @@ def polacz():
 
 @app.route('/')
 def index():
-    try:
-        print(session['zalogowany'])
-    except:
-        print("brak")
     session['wynik'] = False
     session['odszyfrowane'] = False
     zalogowany = session.get('zalogowany', False)
@@ -250,6 +246,13 @@ def administracja():
     return render_template('administracja.html')
 
 
+@app.route("/logout")
+def logout():
+    try:
+        session['zalogowany'] = False
+    except:
+        pass
+    return redirect(url_for("index"))
 @app.route("/cleanup", methods=["POST"])
 def cleanup():
     conn, cur = polacz()
