@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <style>
+        .top-btn {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+    </style>
+    <meta charset="UTF-8">
+    <title>Szyfr Leonarda Królczyka</title>
+</head>
+<body>
+    <a href='{{ url_for("index") }}'>&lAarr;Powrót do menu</a>
+    <a href="{{ url_for('administracja') }}" class="top-btn">Przejście do profilu &Rightarrow;</a>
+    <h1>Rejestracja przebiegła pomyślnie</h1>
+</body>
+</html>

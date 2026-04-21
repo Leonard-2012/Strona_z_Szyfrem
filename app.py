@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 import random
 import sqlite3 as sql3
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = '#Super_wazny_klucz'
@@ -17,7 +18,7 @@ def init_db():
     CREATE TABLE IF NOT EXISTS users(
         login TEXT NOT NULL PRIMARY KEY,
         haslo TEXT NOT NULL,
-        poziom INTEGER
+        data TEXT NOT NULL
     )
     """)
     cur.execute("""
@@ -117,7 +118,6 @@ def sprawdz_logowanie(login, haslo):
     )
     wynik = cur.fetchone()
     conn.close()
-    print(haslo, wynik)
     if haslo == wynik[1]:
         wynik = 1
     else:
@@ -227,6 +227,7 @@ def logowanie():
         try:
             if sprawdz_logowanie(request.form['login'], request.form['haslo']):
                 session['zalogowany'] = True
+                session['login'] = request.form['login']
                 return render_template('administracja.html')
             else:
                 return render_template('logowanie.html', zle=1)
@@ -236,14 +237,46 @@ def logowanie():
         return render_template('logowanie.html', zle=0)
 
 
-@app.route("/rejestracja")
+@app.route("/rejestracja", methods=['GET', 'POST'])
 def rejestracja():
-    return render_template('rejestracja.html')
+    if request.method == 'POST':
+        conn, cur = polacz()
+        login = request.form['login']
+        haslo = request.form['haslo']
+        cur.execute(
+            "SELECT 1 FROM users WHERE login = ?",
+            (login,)
+        )
+        pod_loginem = cur.fetchone()
+        if pod_loginem:
+            conn.close()
+            return render_template('rejestracja.html', zle=1)
+        data = datetime.now().strftime('%Y-%m-%d')
+        cur.execute('INSERT INTO users(login, haslo, data) VALUES(?, ?, ?)', (login, haslo, data))
+        conn.commit()
+        conn.close()
+        return redirect(url_for('pomyslna'))
+    else:
+        return render_template('rejestracja.html', zle=0)
+
+
+@app.route("/pomyslna")
+def pomyslna():
+    return render_template('pomyslna.html')
 
 
 @app.route("/administracja")
 def administracja():
-    return render_template('administracja.html')
+    if session.get('zalogowany', False):
+        conn, cur = polacz()
+        cur.execute(
+            "SELECT * FROM users WHERE login = ?",
+            (session['login'],)
+        )
+        user = cur.fetchone()
+        return render_template('administracja.html', data=user[2])
+    else:
+        return redirect(url_for('logowanie'))
 
 
 @app.route("/logout")
@@ -253,6 +286,8 @@ def logout():
     except:
         pass
     return redirect(url_for("index"))
+
+
 @app.route("/cleanup", methods=["POST"])
 def cleanup():
     conn, cur = polacz()

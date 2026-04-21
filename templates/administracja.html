@@ -1,12 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <style>
+        .top-btn {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    padding: 10px 15px;
+    background: #333;
+    color: blue;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    z-index: 1000;
+    background-color: gray
+}
+.top-btn:hover {
+    background: #555;
+    background-color: lightgrey;
+}
+    </style>
     <meta charset="UTF-8">
     <title>Administracja</title>
 </head>
 <body>
-    <a href='{{ url_for("index") }}'>&lAarr; Powrót do menu</a>
+    <a href='{{ url_for("index") }}' class="top-btn">Powrót do menu</a>
     <h1>Zarządzanie kontem</h1>
+    <h3>Link do grupy jest <a href="https://discord.gg/W4fYYaq9hG">&Rightarrow;tutaj&Leftarrow;</a></h3>
+    <p>Data założenia konta: {{ data }}</p>
     <a href='{{ url_for("logout") }}'>Wyloguj</a>
+
 </body>
 </html>

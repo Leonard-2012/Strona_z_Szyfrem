@@ -28,6 +28,10 @@
     <meta name=”description” content="Spróbuj swoich sił w łamaniu mojego szyfru!" />
 </head>
 <body>
+<hr>
+    <h2>Zajęcia do E8 z matmy</h2>
+    <h3>Po rejestracji dostępny będzie link do grupy na discordzie przygotowującej do E8</h3>
+    <hr>
     {% if status %}
         <a href="{{ url_for('administracja') }}" class="top-btn">Profil</a>
     {% else %}
@@ -54,8 +58,5 @@
     </ul>
     <hr>
     <img src="{{ url_for('static', filename='zdjecie_menu.png') }}">
-    <hr>
-    <h2>Zajęcia do E8 z matmy</h2>
-    <h4></h4>
 </body>
 </html>
