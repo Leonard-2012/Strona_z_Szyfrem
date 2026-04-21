@@ -18,7 +18,8 @@ def init_db():
     CREATE TABLE IF NOT EXISTS users(
         login TEXT NOT NULL PRIMARY KEY,
         haslo TEXT NOT NULL,
-        data TEXT NOT NULL
+        data TEXT NOT NULL,
+        poziom INTEGER
     )
     """)
     cur.execute("""
@@ -111,15 +112,12 @@ def na_binarne(n:int):
 
 
 def sprawdz_logowanie(login, haslo):
-    conn, cur = polacz()
-    cur.execute(
-        "SELECT * FROM users WHERE login = ?",
-        (login, )
-    )
-    wynik = cur.fetchone()
-    conn.close()
-    if haslo == wynik[1]:
-        wynik = 1
+    uzytkownik = get_user(login)
+    if uzytkownik:
+        if haslo == uzytkownik[1]:
+            wynik = 1
+        else:
+            wynik = 0
     else:
         wynik = 0
     return wynik
@@ -130,6 +128,20 @@ def polacz():
     # conn.row_factory = sql3.Row
     cur = conn.cursor()
     return conn, cur
+
+
+def get_user(login):
+    conn, cur = polacz()
+    cur.execute(
+        "SELECT * FROM users WHERE login = ?",
+        (login,)
+    )
+    wynik = cur.fetchone()
+    conn.close()
+
+    return wynik
+
+
 
 
 @app.route('/')
@@ -224,14 +236,11 @@ def deszyfracja_odp():
 @app.route("/logowanie",  methods=['GET', 'POST'])
 def logowanie():
     if request.method == 'POST':
-        try:
-            if sprawdz_logowanie(request.form['login'], request.form['haslo']):
-                session['zalogowany'] = True
-                session['login'] = request.form['login']
-                return render_template('administracja.html')
-            else:
-                return render_template('logowanie.html', zle=1)
-        except:
+        if sprawdz_logowanie(request.form['login'], request.form['haslo']):
+            session['zalogowany'] = True
+            session['login'] = request.form['login']
+            return redirect(url_for('administracja'))
+        else:
             return render_template('logowanie.html', zle=1)
     else:
         return render_template('logowanie.html', zle=0)
@@ -243,16 +252,11 @@ def rejestracja():
         conn, cur = polacz()
         login = request.form['login']
         haslo = request.form['haslo']
-        cur.execute(
-            "SELECT 1 FROM users WHERE login = ?",
-            (login,)
-        )
-        pod_loginem = cur.fetchone()
-        if pod_loginem:
+        if get_user(login):
             conn.close()
             return render_template('rejestracja.html', zle=1)
         data = datetime.now().strftime('%Y-%m-%d')
-        cur.execute('INSERT INTO users(login, haslo, data) VALUES(?, ?, ?)', (login, haslo, data))
+        cur.execute('INSERT INTO users(login, haslo, data, poziom) VALUES(?, ?, ?, ?)', (login, haslo, data, 0))
         conn.commit()
         conn.close()
         return redirect(url_for('pomyslna'))
@@ -262,19 +266,15 @@ def rejestracja():
 
 @app.route("/pomyslna")
 def pomyslna():
-    return render_template('pomyslna.html')
+    return render_template('pomyslna_rejestracja.html')
 
 
 @app.route("/administracja")
 def administracja():
     if session.get('zalogowany', False):
-        conn, cur = polacz()
-        cur.execute(
-            "SELECT * FROM users WHERE login = ?",
-            (session['login'],)
-        )
-        user = cur.fetchone()
-        return render_template('administracja.html', data=user[2])
+        user = get_user(session['login'])
+        print(user)
+        return render_template('administracja.html', login=user[0], data=user[2], poziom=user[3])
     else:
         return redirect(url_for('logowanie'))
 
