@@ -19,6 +19,10 @@
     background: #555;
     background-color: lightgrey;
 }
+male {
+    color: red;
+    font-size: 12px;
+    }
     </style>
     <meta charset="UTF-8">
     <title>Administracja</title>
@@ -32,7 +36,22 @@
         <li>Data założenia konta: {{ data }}</li>
         <li>Najwyższy pokonany poziom: {{ poziom }}</li>
     </ul>
-
+    <hr>
+    <h4>Zmiana hasła:</h4>
+    <form method="post" action="/administracja">
+        <p>stare hasło: <input type="text" name="str" size="100" required></p>
+        <p>nowe hasło: <input type="text" name="nw" size="100" required></p>
+        <p>powtórz nowe hasło: <input type="text" name="pnw" size="100" required></p>
+        {% if admin_err == 1 %}
+            <male>Zmiana przebiegła pomyślnie</male>
+        {% elif admin_err == 2 %}
+            <male>Błędne stare hasło</male>
+        {% elif admin_err == 3 %}
+            <male>Hasła nie są takie same</male>
+        {% endif %}
+        <button type="submit">Wyślij</button>
+    </form>
+    <hr>
     <a href='{{ url_for("logout") }}'>Wyloguj</a>
 
 </body>

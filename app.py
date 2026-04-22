@@ -89,7 +89,7 @@ def deszyfr_dobry(zaszyfrowane):
     wiadomosc = zaszyfrowane[liczba:][:-1]
     for i in klucze:
         id = wejscie[i] % (len(wiadomosc) - 1)
-        wiadomosc = wiadomosc[:id] + wiadomosc[(id+1):]
+        wiadomosc = wiadomosc[:id] + wiadomosc[(id + 1):]
     x = (len(wiadomosc) - 1) // 2
     cezar = wejscie[wiadomosc[x]]
     wiadomosc = wiadomosc[:x][::-1] + wiadomosc[x + 1:][::-1]
@@ -100,7 +100,7 @@ def deszyfr_dobry(zaszyfrowane):
     return wynik
 
 
-def na_binarne(n:int):
+def na_binarne(n: int):
     wynik = ""
     while n > 0:
         reszta = n % 2
@@ -124,7 +124,7 @@ def sprawdz_logowanie(login, haslo):
 
 
 def polacz():
-    conn = sql3.connect("datas/baza.db")
+    conn = sql3.connect("datas/baza.db", timeout=5)
     # conn.row_factory = sql3.Row
     cur = conn.cursor()
     return conn, cur
@@ -138,10 +138,32 @@ def get_user(login):
     )
     wynik = cur.fetchone()
     conn.close()
-
     return wynik
 
 
+def update_user_2(login, data, name):
+    try:
+        conn, cur = polacz()
+        cur.execute(
+            f"UPDATE users SET {name} = ? WHERE login = ?",
+            (data, login)
+        )
+        conn.commit()
+        conn.close()
+        return 1
+    except Exception as e:
+        print("Błąd SQL:", e)
+        return 0
+
+
+def update_user(login, poziom=None, haslo=None):
+    if poziom:
+        if not update_user_2(login, poziom, 'poziom'):
+            raise ValueError('no such column in database')
+    if haslo:
+        if not update_user_2(login, haslo, 'haslo'):
+            raise ValueError('no such column in database')
+    return 1
 
 
 @app.route('/')
@@ -178,16 +200,22 @@ def test():
             conn, cur = polacz()
             session['poziom'] += 1
             session['bledy'] = 0
-            cur.execute("DELETE FROM aktywne_slowa WHERE id = ?", (session['id'], ))
+            cur.execute("DELETE FROM aktywne_slowa WHERE id = ?", (session['id'],))
+            conn.close()
+            if session.get('zalogowany', False):
+                user_poziom = get_user(session['login'])[3]
+                if user_poziom < session['poziom'] - 1:
+                    update_user(session['login'], poziom=(session['poziom'] - 1))
             if session['poziom'] > 5:
-                conn.close()
+                update_user(session['login'], poziom=5)
                 return render_template('wygrana.html')
             session['slowo'] = random.choice(slowa)[0]
             session['zaszyfrowane'] = dobry_szyfr(session['slowo'], session['poziom'] - 1)
+            conn, cur = polacz()
             cur.execute('INSERT INTO aktywne_slowa(content) VALUES(?)', (session['zaszyfrowane'],))
             conn.commit()
-            session['id'] = cur.lastrowid
             conn.close()
+            session['id'] = cur.lastrowid
         else:
             session['bledy'] += 1
             if session['bledy'] > 2:
@@ -196,7 +224,8 @@ def test():
                 conn.close()
                 return redirect(url_for('test0'))
         return redirect(url_for('test'))
-    return render_template('test.html', poziom=session['poziom'], wiadomosc=session['zaszyfrowane'], bledy=session['bledy'])
+    return render_template('test.html', poziom=session['poziom'], wiadomosc=session['zaszyfrowane'],
+                           bledy=session['bledy'])
 
 
 @app.route('/cwiczenia_odp', methods=['POST', 'GET'])
@@ -233,7 +262,7 @@ def deszyfracja_odp():
     return render_template('deszyfracja_odp.html', odszyfrowane=odszyfrowane_koniec)
 
 
-@app.route("/logowanie",  methods=['GET', 'POST'])
+@app.route("/logowanie", methods=['GET', 'POST'])
 def logowanie():
     if request.method == 'POST':
         if sprawdz_logowanie(request.form['login'], request.form['haslo']):
@@ -269,14 +298,34 @@ def pomyslna():
     return render_template('pomyslna_rejestracja.html')
 
 
-@app.route("/administracja")
+@app.route("/administracja", methods=['GET', 'POST'])
 def administracja():
-    if session.get('zalogowany', False):
-        user = get_user(session['login'])
-        print(user)
-        return render_template('administracja.html', login=user[0], data=user[2], poziom=user[3])
+    if request.method == 'GET':
+        if session.get('zalogowany', False):
+            session['admin_err'] = 0
+            user = get_user(session['login'])
+            return render_template('administracja.html', login=user[0], data=user[2], poziom=user[3], admin_err=session['admin_err'])
+        else:
+            return redirect(url_for('logowanie'))
     else:
-        return redirect(url_for('logowanie'))
+        if session.get('zalogowany', False):
+            session['admin_err'] = 0
+            user = get_user(session['login'])
+            stare = request.form['str']
+            if stare == get_user(session['login'])[1]:
+                nw: str = request.form['nw']
+                pnw = request.form['pnw']
+                if nw == pnw:
+                    update_user(session['login'], haslo=nw)
+                    session['admin_err'] = 1
+                else:
+                    session['admin_err'] = 3
+            else:
+                session['admin_err'] = 2
+            print(session['admin_err'])
+            return render_template('administracja.html', login=user[0], data=user[2], poziom=user[3],admin_err=session['admin_err'])
+        else:
+            return redirect(url_for('logowanie'))
 
 
 @app.route("/logout")
