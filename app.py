@@ -322,7 +322,6 @@ def administracja():
                     session['admin_err'] = 3
             else:
                 session['admin_err'] = 2
-            print(session['admin_err'])
             return render_template('administracja.html', login=user[0], data=user[2], poziom=user[3],admin_err=session['admin_err'])
         else:
             return redirect(url_for('logowanie'))
