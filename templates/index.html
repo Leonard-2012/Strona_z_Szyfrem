@@ -29,21 +29,13 @@
 </head>
 <body>
 <hr>
-    <h2>Zajęcia do E8 z matmy</h2>
-    <h3>Po rejestracji dostępny będzie link do grupy na discordzie przygotowującej do E8</h3>
-    <hr>
-    {% if status %}
-        <a href="{{ url_for('administracja') }}" class="top-btn">Profil</a>
-    {% else %}
-        <a href="{{ url_for('logowanie') }}" class="top-btn">Logowanie</a>
-    {% endif %}
     <h1>Wyzwanie z Szyfrem (v 4.3.1)</h1>
     <h4>Na tej stronie możesz spróbować złamać mój szyfr,<br>Pierwsza osoba która to zrobi otrzyma kwote <b><mark>1000 dongów wietnamskich.</mark></b></h4>
     <hr>
     <h3>Dostępne są 2 tryby - ćwiczeniowy oraz testowy (przejscie do nich znajduje się na dole strony)</h3>
     <h5>W pierwszym z nich możliwe jest sprawdzenie odpowiedzi, za to tylko w podejściach testowych możliwe jest wygranie nagrody</h5>
     <hr>
-    <!--<h2>Pare słów o szyfrze:</h2>
+    <h2>Pare słów o szyfrze:</h2>
     <p>Jest to szyfr zrobiony przeze mnie - domowej roboty.<br>
     Dla uławienia mogę dodać że szyfr jest podstawieniowy oraz propabilistyczny, czyli łopatologicznie rzecz ujmójąc
     zamienia litery na liczby oraz jest w nim element losowy.</p>-->
@@ -66,7 +58,6 @@
         <li><h4>Jeżeli chcesz zdeszyfrować wiadomośc kliknij <a href='{{ url_for("deszyfracja_odp") }}'>tutaj</a></h4></li>
     </ul>
     <hr>
-    <img src="{{ url_for('static', filename='zdjecie_menu.png') }}">
     <p>Zainteresowany?, chętnie zostane współautorem więklszego projektu. kontakt: leonardkrolczyk@zso2.pl</p>
     <p>Ten projekt zakończyłem w kwietniu 2026</p>
 </body>

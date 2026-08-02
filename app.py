@@ -14,20 +14,6 @@ def init_db():
         content TEXT NOT NULL
     )
     """)
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS users(
-        login TEXT NOT NULL PRIMARY KEY,
-        haslo TEXT NOT NULL,
-        data TEXT NOT NULL,
-        poziom INTEGER
-    )
-    """)
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS aktywne_slowa(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        content TEXT NOT NULL
-    )
-    """)
     conn.commit()
     conn.close()
 
@@ -347,4 +333,4 @@ def cleanup():
 
 if __name__ == "__main__":
     init_db()
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=8080)
